@@ -20,11 +20,13 @@ public class MyParcel {
     private String vendor;
     private String status;
     private String location;
+    private String mBitmapString;
 
     public MyParcel(){
 
     }
-    public MyParcel(String userId, String name, String pickupAddress, Date pickupTime, String deliveryAddress, Date deliveryTime, String vendor, String status, String location) {
+    public MyParcel(String userId, String name, String pickupAddress, Date pickupTime, String deliveryAddress,
+                    Date deliveryTime, String vendor, String status, String location) {
         this.userId = userId;
         this.name = name;
         this.pickupAddress = pickupAddress;
@@ -34,7 +36,9 @@ public class MyParcel {
         this.vendor = vendor;
         this.status = status;
         this.location = location;
+        //mBitmapString=bitMapString;
     }
+
 
     public String getName() {
         return name;
