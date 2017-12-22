@@ -26,9 +26,7 @@ import android.widget.Toast;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -113,7 +111,6 @@ public class MainActivity extends AppCompatActivity
         ivUser = headerView.findViewById(R.id.ivUser);
         setHeader();
         loadUserParcels();
-
     }
 
     public void loadUserParcels(){
@@ -215,10 +212,9 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(MainActivity.this, CreateParcelActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-       //     loadUserParcels();
+           loadUserParcels();
         } else if (id == R.id.nav_slideshow) {
-            Intent intent = new Intent(MainActivity.this, Main3Activity.class);
-            startActivity(intent);
+
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
