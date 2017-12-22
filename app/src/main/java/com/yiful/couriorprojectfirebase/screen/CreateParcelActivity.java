@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NavUtils;
@@ -20,8 +21,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -33,8 +32,6 @@ import com.yiful.couriorprojectfirebase.util.GetPickerId;
 import com.yiful.couriorprojectfirebase.util.TimePickerFragment;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,6 +60,9 @@ public class CreateParcelActivity extends AppCompatActivity implements TimePicke
     @BindView(R.id.deliveryAddress)
     EditText deliveryAddress;
 
+    Bitmap bitmap;
+    String bitMapString;
+    String status="new";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,11 +117,15 @@ public class CreateParcelActivity extends AppCompatActivity implements TimePicke
                 Log.i(TAG, "btnclicked");
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 String userId = FirebaseAuth.getInstance().getUid();
+
                 //get pickup date and delivery date
                 Date date1 = getDateFromString(pickupDate.getText().toString(), pickupTime.getText().toString());
                 Date date2 = getDateFromString(deliveryDate.getText().toString(), deliverTime.getText().toString());
+
+                //Modified to add QRCode to firebase
                 MyParcel parcel = new MyParcel(userId, etParcelName.getText().toString(), pickupAddress.getText().toString(), date1,
-                        deliveryAddress.getText().toString(), date2, spinner.getSelectedItem().toString(), "new", pickupAddress.getText().toString());
+                        deliveryAddress.getText().toString(), date2, spinner.getSelectedItem().toString(), status,
+                        pickupAddress.getText().toString());
              //   Map<String, Object> map = parcel.toMap();
                 db.collection("parcels").add(parcel)
                         .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {

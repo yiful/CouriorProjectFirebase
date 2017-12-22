@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CouriorProjectFirebase.iml" filepath="$PROJECT_DIR$/CouriorProjectFirebase.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/CouriorProjectFirebase.iml" filepath="$PROJECT_DIR$/.idea/CouriorProjectFirebase.iml" />
+      <module fileurl="file://C:\Users\rashmi\AndroidStudioProjects\CouriorProjectFirebase\CouriorProjectFirebase.iml" filepath="C:\Users\rashmi\AndroidStudioProjects\CouriorProjectFirebase\CouriorProjectFirebase.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

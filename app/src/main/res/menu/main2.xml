@@ -11,4 +11,9 @@
         android:title="Create parcel"
         android:icon="@drawable/ic_add_black_24dp"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/scanBarcode"
+        android:title="Scan BarCode"
+        app:showAsAction="never"/>
+
 </menu>
