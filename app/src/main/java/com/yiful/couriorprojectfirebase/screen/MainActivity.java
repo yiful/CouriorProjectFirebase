@@ -26,9 +26,13 @@ import android.widget.Toast;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -64,7 +68,8 @@ public class MainActivity extends AppCompatActivity
     private FirebaseUser user;
     private List<MyParcel> parcelList;
     private ParcelAdapter adapter;
-
+    private FirebaseFirestore db;
+    private String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +77,11 @@ public class MainActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         loginRegisterPresenter = new LoginRegisterImplementation(this, this);
+        parcelList = new ArrayList<>();
+        adapter = new ParcelAdapter(MainActivity.this, parcelList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+        recyclerView.setAdapter(adapter);
+        db = FirebaseFirestore.getInstance();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -102,9 +112,54 @@ public class MainActivity extends AppCompatActivity
         tvEmail = headerView.findViewById(R.id.tvEmail);
         ivUser = headerView.findViewById(R.id.ivUser);
         setHeader();
+        loadUserParcels();
 
     }
 
+    public void loadUserParcels(){
+        userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        db.collection("parcels").whereEqualTo("userId", userId)
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot documentSnapshots) {
+                Log.d(TAG, "success");
+
+                for(DocumentSnapshot documentSnapshot : documentSnapshots){
+                    MyParcel parcel = documentSnapshot.toObject(MyParcel.class);
+                    parcelList.add(parcel);
+                    Log.d(TAG, "retrieved"+parcel.getName());
+                }
+                adapter.notifyDataSetChanged();
+                addDataUpdatesListener();
+            }
+        });
+    }
+
+    private void addDataUpdatesListener() {
+        db.collection("parcels").whereEqualTo("userId", userId)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+                        if(e!=null){
+                            Log.w(TAG, "listen failed",e );
+                        }
+                        parcelList.clear();
+                        for(DocumentSnapshot doc : documentSnapshots){
+                            if(doc != null){
+                                parcelList.add(doc.toObject(MyParcel.class));
+                                Log.d(TAG, "parcel is added "+doc.toObject(MyParcel.class).getName());
+                            }
+                        }
+                        adapter.notifyDataSetChanged();
+                        /*for(DocumentChange change: documentSnapshots.getDocumentChanges()){
+                            switch (change.getType()){
+                                case ADDED:
+
+                            }
+                        }*/
+                    }
+                });
+    }
 
     @Override
     public void onBackPressed() {
@@ -130,6 +185,7 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_settings:
+                loadUserParcels();
                 break;
             case R.id.create_parcel:
                 Intent intent = new Intent(MainActivity.this, CreateParcelActivity.class);
@@ -155,34 +211,14 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            // create a parcel
+            Intent intent = new Intent(MainActivity.this, CreateParcelActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            parcelList = new ArrayList<>();
-            Log.i(TAG, "btn cliked");
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            db.collection("parcels").whereEqualTo("userId", userId)
-                    .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                @Override
-                public void onSuccess(QuerySnapshot documentSnapshots) {
-                    Log.d(TAG, "success");
-
-                    for(DocumentSnapshot documentSnapshot : documentSnapshots){
-                        MyParcel parcel = documentSnapshot.toObject(MyParcel.class);
-                        parcelList.add(parcel);
-                        Log.d(TAG, "retrieved"+parcel.getName());
-                    }
-
-                    adapter = new ParcelAdapter(MainActivity.this, parcelList);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                    recyclerView.setAdapter(adapter);
-
-                }
-            });
-
-
+       //     loadUserParcels();
         } else if (id == R.id.nav_slideshow) {
-
+            Intent intent = new Intent(MainActivity.this, Main3Activity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
@@ -204,6 +240,7 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == RC_SIGN_IN) {
             IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == Activity.RESULT_OK) {
+                loadUserParcels();
                 loginSuccess();
             } else {
                 loginFailure();
@@ -269,12 +306,16 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnLogin:
+                //logout
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user != null) {
                     loginRegisterPresenter.logout();
+                    parcelList.clear();
+                    adapter.notifyDataSetChanged();
                     logoutSuccess();
                 } else {
-                    loginRegisterPresenter.loginRegister();
+                    //login
+                    loginRegisterPresenter.loginRegister(); //will return activity for result
                 }
 
                 break;

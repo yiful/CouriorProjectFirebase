@@ -39,6 +39,7 @@ public class LoginRegisterImplementation implements LoginRegisterPresenter {
                         .createSignInIntentBuilder()
                         .setAvailableProviders(providers)
                         .build(), RC_SIGN_IN);
+
     }
 
     @Override
